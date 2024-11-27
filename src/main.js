@@ -7,6 +7,13 @@ class MyTelegramBot extends HtmlTelegramBot {
     }
 
     // Мы будем писать тут наш код
+
+
+    async start(msg) {
+        await this.sendText("Вы нажали команду start")
+    }
+
+
     async hello(msg) {
         const text = msg.text
         await this.sendText("<b>Привет!</b>")
@@ -30,6 +37,7 @@ class MyTelegramBot extends HtmlTelegramBot {
 }
 
 const bot = new MyTelegramBot("7281823810:AAHarZYv6TgI1gQKzYqRwG3BVMutk_IoADo");
+bot.onCommand( /\/start/, bot.start)
 
 // Мы будем писать тут наш код
 bot.onTextMessage(bot.hello)
