@@ -7,8 +7,17 @@ class MyTelegramBot extends HtmlTelegramBot {
     }
 
     // Мы будем писать тут наш код
-    hello() {
+    async hello(msg) {
+        const text = msg.text
+        await this.sendText("<b>Привет!</b>")
+        await this.sendText("<i>Как дела?</i>")
+        await this.sendText(`Вы написали привет: ${text}`)
 
+        await this.sendImage("avatar_main")
+        this.sendTextButtons("Какая у вас тема в телеграмм", {
+            "theme light": "Светлая",
+            "theme dark": "Темная",
+        })
     }
 }
 
