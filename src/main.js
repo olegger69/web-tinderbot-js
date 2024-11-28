@@ -15,6 +15,16 @@ class MyTelegramBot extends HtmlTelegramBot {
         const text = this.loadMessage("main")
         await this.sendImage("main")
         await this.sendText(text)
+
+        await this.showMainMenu({
+            "start": "главное меню бота",
+            "profile": "генерация Tinder-профиля 😎",
+            "opener": "сообщение для знакомства 🥰",
+            "message": "переписка от вашего имени 😈",
+            "date": "переписка со звездами 🔥",
+            "gpt": "задать вопрос чату GPT 🧠",
+            "html": "Демонстрация HTML"
+        })
     }
 
 
