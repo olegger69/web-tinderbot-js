@@ -16,6 +16,13 @@ class MyTelegramBot extends HtmlTelegramBot {
     }
 
 
+    async html(msg) {
+        await this.sendHTML('<h3 style="color:#1558b0">Привет!</h3>')
+        const html = this.loadHtml("main")
+        await this.sendHTML(html, {theme: "dark"})
+    }
+
+
     async hello(msg) {
         const text = msg.text
         await this.sendText("<b>Привет!</b>")
@@ -43,5 +50,6 @@ const bot = new MyTelegramBot("7281823810:AAHarZYv6TgI1gQKzYqRwG3BVMutk_IoADo");
 
 // Мы будем писать тут наш код
 bot.onCommand( /\/start/, bot.start)
+bot.onCommand( /\/html/, bot.html)
 bot.onTextMessage(bot.hello)
 bot.onButtonCallback(/^.*/, bot.helloButton)
