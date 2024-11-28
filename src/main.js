@@ -27,12 +27,16 @@ class MyTelegramBot extends HtmlTelegramBot {
 
     async gpt(msg) {
         this.mode = "gpt"
-        await this.sendText("Пообщаемся с ии")
+        const text = this.loadMessage("gpt")
+        await this.sendImage("gpt")
+        await this.sendText(text)
     }
 
 
     async gptDialog(msg) {
-
+        const text = msg.text;
+        const answer = await chatgpt.sendQuestion("Ответь на вопрос?", text)
+        await this.sendText(answer)
     }
 
 
