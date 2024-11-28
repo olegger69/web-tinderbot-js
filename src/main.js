@@ -50,9 +50,44 @@ class MyTelegramBot extends HtmlTelegramBot {
     }
 
 
+    async date(msg) {
+        this.mode = "date"
+        const text = this.loadMessage("date")
+        await this.sendImage("date")
+        await this.sendTextButtons(text, {
+            "date_grande": "Ариана Гранде",
+            "date_robbie": "Марго Робби",
+            "date_zendaya": "Зендея",
+            "date_gosling": "Райан Гослинг",
+            "date_hardy": "Том Харди",
+        })
+    }
+
+
+    async dateButton(callbackQuery) {
+        const query = callbackQuery.data;
+        await this.sendImage(query)
+        await this.sendText("Отличный выбор! Пригласи девушку на свидание за 5 сообщений: ")
+
+        const prompt = this.loadPrompt(query)
+        chatgpt.setPrompt(prompt)
+    }
+
+
+    async dateDialog(msg) {
+        const text = msg.text
+        const myMessage = await this.sendText("Девушка набирает текст...")
+        const answer = await chatgpt.addMessage(text)
+        // await this.sendText(answer)
+        await this.editText(myMessage, answer)
+    }
+
+
     async hello(msg) {
         if (this.mode === "gpt")
             await this.gptDialog(msg);
+        else if (this.mode === "date")
+            await this.dateDialog(msg)
         else {
             const text = msg.text
             await this.sendText("<b>Привет!</b>")
@@ -84,5 +119,8 @@ const bot = new MyTelegramBot("7281823810:AAHarZYv6TgI1gQKzYqRwG3BVMutk_IoADo");
 bot.onCommand( /\/start/, bot.start)
 bot.onCommand( /\/html/, bot.html)
 bot.onCommand( /\/gpt/, bot.gpt)
+bot.onCommand( /\/date/, bot.date)
+
 bot.onTextMessage(bot.hello)
+bot.onButtonCallback( /^date._*/, bot.dateButton)
 bot.onButtonCallback(/^.*/, bot.helloButton)
