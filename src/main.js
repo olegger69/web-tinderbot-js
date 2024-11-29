@@ -5,6 +5,7 @@ class MyTelegramBot extends HtmlTelegramBot {
     constructor(token) {
         super(token);
         this.mode = null;
+        this.list = []
     }
 
     // Мы будем писать тут наш код
@@ -45,8 +46,9 @@ class MyTelegramBot extends HtmlTelegramBot {
 
     async gptDialog(msg) {
         const text = msg.text;
+        const myMessage = await this.sendText("Ваше сообщение было переслано в ChatGPT. Ожидайте ...")
         const answer = await chatgpt.sendQuestion("Ответь на вопрос?", text)
-        await this.sendText(answer)
+        await this.editText(myMessage, answer)
     }
 
 
@@ -83,11 +85,42 @@ class MyTelegramBot extends HtmlTelegramBot {
     }
 
 
+    async message(msg) {
+        this.mode = "message"
+        const text = this.loadMessage("message")
+        await this.sendImage("message")
+        await this.sendTextButtons(text, {
+            "message_next": "Следующее сообщение",
+            "message_date": "Пригласить на свидание",
+        })
+    }
+
+
+    async messageButton(callbackQuery) {
+        const query = callbackQuery.data;
+        const prompt = this.loadPrompt(query)
+        const userChatHistory = this.list.join("\n\n");
+
+
+        const myMessage = await this.sendText("ChatGPT думает, что ему ответить...")
+        const answer = await chatgpt.sendQuestion(prompt, userChatHistory)
+        await this.editText(myMessage, answer)
+    }
+
+
+    async messageDialog(msg) {
+        const text = msg.text
+        this.list.push(text)
+    }
+
+
     async hello(msg) {
         if (this.mode === "gpt")
             await this.gptDialog(msg);
         else if (this.mode === "date")
             await this.dateDialog(msg)
+        else if (this.mode === "message")
+            await this.messageDialog(msg)
         else {
             const text = msg.text
             await this.sendText("<b>Привет!</b>")
@@ -120,7 +153,9 @@ bot.onCommand( /\/start/, bot.start)
 bot.onCommand( /\/html/, bot.html)
 bot.onCommand( /\/gpt/, bot.gpt)
 bot.onCommand( /\/date/, bot.date)
+bot.onCommand( /\/message/, bot.message)
 
 bot.onTextMessage(bot.hello)
 bot.onButtonCallback( /^date._*/, bot.dateButton)
+bot.onButtonCallback( /^message._*/, bot.messageButton)
 bot.onButtonCallback(/^.*/, bot.helloButton)
