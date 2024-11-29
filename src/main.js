@@ -5,7 +5,9 @@ class MyTelegramBot extends HtmlTelegramBot {
     constructor(token) {
         super(token);
         this.mode = null;
-        this.list = []
+        this.list = [];
+        this.user = {};
+        this.count = 0;
     }
 
     // Мы будем писать тут наш код
@@ -115,6 +117,53 @@ class MyTelegramBot extends HtmlTelegramBot {
     }
 
 
+    async profile(msg) {
+        this.mode = "profile"
+        const text = this.loadMessage("profile")
+        await this.sendImage("profile")
+        await this.sendText(text)
+
+        this.user = {};
+        this.count = 0;
+        await this.sendText("Сколько вам лет?")
+    }
+
+
+    async profileDialog(msg) {
+        const text = msg.text
+        this.count++;
+
+        if (this.count === 1) {
+            this.user["age"] = text;
+            await this.sendText("Кем вы работаете?")
+        }
+        if (this.count === 2) {
+            this.user["occupation"] = text;
+            await this.sendText("У вас есть хобби?")
+        }
+        if (this.count === 3) {
+            this.user["hobby"] = text;
+            await this.sendText("Что вам НЕ нравится в людях?")
+        }
+        if (this.count === 4) {
+            this.user["annoys"] = text;
+            await this.sendText("Цель знакомства?")
+        }
+        if (this.count === 5) {
+            this.user["goals"] = text;
+
+
+            const prompt = this.loadPrompt("profile")
+            const info = userInfoToString(this.user);
+
+
+            const myMessage = await this.sendText("ChatGPT генирирует ваш профиль...")
+            const answer = await chatgpt.sendQuestion(prompt, info);
+            await this.editText(myMessage, answer)
+        }
+    }
+
+
     async hello(msg) {
         if (this.mode === "gpt")
             await this.gptDialog(msg);
@@ -122,6 +171,8 @@ class MyTelegramBot extends HtmlTelegramBot {
             await this.dateDialog(msg)
         else if (this.mode === "message")
             await this.messageDialog(msg)
+        else if (this.mode === "profile")
+            await this.profileDialog(msg)
         else {
             const text = msg.text
             await this.sendText("<b>Привет!</b>")
@@ -155,6 +206,7 @@ bot.onCommand( /\/html/, bot.html)
 bot.onCommand( /\/gpt/, bot.gpt)
 bot.onCommand( /\/date/, bot.date)
 bot.onCommand( /\/message/, bot.message)
+bot.onCommand( /\/profile/, bot.profile)
 
 bot.onTextMessage(bot.hello)
 bot.onButtonCallback( /^date._*/, bot.dateButton)
