@@ -164,6 +164,53 @@ class MyTelegramBot extends HtmlTelegramBot {
     }
 
 
+    async opener(msg) {
+        this.mode = "opener"
+        const text = this.loadMessage("opener")
+        await this.sendImage("opener")
+        await this.sendText(text)
+
+        this.user = {};
+        this.count = 0;
+        await this.sendText("Напиши имя твоей девушки")
+    }
+
+
+    async openerDialog(msg) {
+        const text = msg.text
+        this.count++;
+
+        if (this.count === 1) {
+            this.user["name"] = text;
+            await this.sendText("Сколько лет твоей девушке?")
+        }
+        if (this.count === 2) {
+            this.user["age"] = text;
+            await this.sendText("Оцени ее внешность по шкале от: 1 - 10 балов?")
+        }
+        if (this.count === 3) {
+            this.user["handsome"] = text;
+            await this.sendText("Кем она работает?")
+        }
+        if (this.count === 4) {
+            this.user["occupation"] = text;
+            await this.sendText("Цель знакомства?")
+        }
+        if (this.count === 5) {
+            this.user["goals"] = text;
+
+
+            const prompt = this.loadPrompt("opener")
+            const info = userInfoToString(this.user);
+
+
+            const myMessage = await this.sendText("ChatGPT генирирует ваш opener...")
+            const answer = await chatgpt.sendQuestion(prompt, info);
+            await this.editText(myMessage, answer)
+        }
+    }
+
+
     async hello(msg) {
         if (this.mode === "gpt")
             await this.gptDialog(msg);
@@ -173,6 +220,8 @@ class MyTelegramBot extends HtmlTelegramBot {
             await this.messageDialog(msg)
         else if (this.mode === "profile")
             await this.profileDialog(msg)
+        else if (this.mode === "opener")
+            await this.openerDialog(msg)
         else {
             const text = msg.text
             await this.sendText("<b>Привет!</b>")
@@ -207,6 +256,7 @@ bot.onCommand( /\/gpt/, bot.gpt)
 bot.onCommand( /\/date/, bot.date)
 bot.onCommand( /\/message/, bot.message)
 bot.onCommand( /\/profile/, bot.profile)
+bot.onCommand( /\/opener/, bot.opener)
 
 bot.onTextMessage(bot.hello)
 bot.onButtonCallback( /^date._*/, bot.dateButton)
