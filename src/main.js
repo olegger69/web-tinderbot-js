@@ -93,6 +93,7 @@ class MyTelegramBot extends HtmlTelegramBot {
             "message_next": "Следующее сообщение",
             "message_date": "Пригласить на свидание",
         })
+        this.list = []
     }
 
 
